@@ -35,9 +35,19 @@ my-island 的出发点很简单：
 - runtime state 与可读文档分层
 - 所有关键结果都应可追溯、可复查、可恢复
 
+## 当前主线
+
+当前阶段，`my-island` 只重点推进两条主线：
+
+- `mission`：围绕具体目标组织上下文与执行
+- `memory`：沉淀默认继承的长期经验
+
+`bonfire` 只是这两条主线的本地工作空间，不应反向长成一个脱离 `my-island` 的独立系统。
+
 ## 分工边界
 
 ### Human-owned
+
 默认由 human 主导维护：
 
 - 目标
@@ -47,6 +57,7 @@ my-island 的出发点很简单：
 - Bear 写入动作
 
 ### Agent-owned knowledge
+
 默认由 agent 主导维护：
 
 - memory
@@ -56,7 +67,13 @@ my-island 的出发点很简单：
 - reference digests
 - docs snapshots
 
+其中需要明确区分：
+
+- `memory`：默认继承入口，承载高密度、稳定、可复用的长期经验
+- `decision`：已经确认、长期有效的关键判断，用来固定边界，防止系统反复漂移
+
 ### Agent-owned runtime
+
 只服务运行，不承担主文档职责：
 
 - index
@@ -65,10 +82,10 @@ my-island 的出发点很简单：
 - ingest metadata
 - sync markers
 
-## Workstream
+## Mission
 
-workstream 不是 task board，也不是 release board。  
-它是“当前目标的工作上下文记忆”。
+mission 不是 task board，也不是 release board。  
+它是围绕具体目标建立的治理与上下文容器。
 
 它主要回答：
 
@@ -79,6 +96,79 @@ workstream 不是 task board，也不是 release board。
 - 哪些点需要 main 审核
 - 当前已经确认了哪些判断
 
+## Memory-first
+
+`my-island` 采用 `memory-first` 作为默认继承原则。
+
+这不代表所有内容都写进 `memory`，而是指：
+
+- agent 默认先读 `memory`
+- 当前任务明确挂在某条 `mission` 上时，再读对应 `mission`
+- 只有在 `memory` 与 `mission` 都不足时，再按需展开到 `docs/` 与 `refs/`
+
+这样做的目的，是压缩默认入口层，避免所有文档同时竞争上下文入口。
+
+`memory` 的角色也需要保持克制：
+
+- 它是默认继承经验库，不是所有已确认内容的总库
+- 它只收跨 mission 仍然成立、以后默认值得继承的经验
+- 单次过程、当前上下文、未确认方案，不应直接进入 `memory`
+
+## Decision
+
+`decision` 不是过程记录，也不是普通总结。
+
+它用来保存：
+
+- 已经确认的关键判断
+- 仍会持续生效的边界
+- 后续实现应直接遵守的规则
+
+`summary` 负责记录一轮讨论收敛了什么，`decision` 负责固定最终决定了什么。
+
+## Summary
+
+`summary` 用来沉淀某一轮讨论或某一阶段收敛了什么。
+
+它不同于 `decision`，也不同于 `memory`：
+
+- `summary` 记录阶段性收敛结果
+- `decision` 固定已经确认的边界与判断
+- `memory` 提炼以后默认该继承的经验
+
+## Object Identity
+
+正式对象的 `frontmatter.id` 应与文件名分离。
+
+规则：
+
+- `id` 使用稳定 UUID
+- 文件名继续保留 `timestamp + slug` 的可读形式
+- 文件名允许调整，`id` 不应随之改变
+
+这样做的目的，是把“对象身份”和“人类可读路径”拆开，避免重命名后对象身份漂移。
+
+## Mission -> Memory
+
+`mission` 与 `memory` 之间采用轻量提升路径。
+
+规则：
+
+- `member` 可以在执行材料里提出 `Suggested Promotions`
+- `main` 中的 agent 可以在主讨论中整理并提出提升建议
+- 最终是否进入 `memory`，由 `human` 确认
+- 确认后，才把内容写成短而稳定的经验条目
+
+也就是说，`memory` 的提升路径是：
+
+```text
+mission
+  -> candidate
+  -> main agent proposal
+  -> human confirm
+  -> memory
+```
+
 ## Main 与 Members
 
 `main` 负责讨论、计划、审核与验收。
@@ -86,6 +176,38 @@ workstream 不是 task board，也不是 release board。
 `members` 是执行分身，每个成员对应独立 worktree 和任务空间。成员按分配的计划执行，在 checkpoint 处提交结果，等待 main 复查。
 
 这样做的目的，是隔离执行上下文，降低偏航风险。
+
+## Development Flow
+
+正式开发的最小前提，是对应的 `mission` 已经存在，并且当前工作默认发生在该 `mission` 上下文中。
+
+进入开发后的顺序是：
+
+```text
+mission 已存在
+  -> human 决定开始开发
+  -> Prometheus 输出单一总计划
+  -> human 审核总计划
+  -> main agent 拆解与分配
+  -> human 创建对应数量的 worktree
+  -> 初始化 worktree / 合成 AGENTS
+  -> members 开始执行
+```
+
+其中：
+
+- `Prometheus` 只输出一个总计划
+- `main agent` 负责把总计划拆成成员可执行计划
+- 拆分时优先保持模块完整性，不把强依赖改动拆散给多个成员
+- `team/<member>/plan.md` 承接详细执行计划，而不是把这些细节继续灌回 `mission`
+- 不为了提高并行度而把任务切得过碎，优先减少协调成本
+- 团队成员数量默认上限为 6
+
+`main agent` 的拆分判断还应遵循：
+
+- 能由 1 人完整做完的模块，不为了并行硬拆成多人
+- 只有当模块边界清楚、contract 稳定、可以独立验收时，才适合拆给不同成员
+- 如果拆分后需要频繁同步、频繁改同一批文件，说明已经拆过头
 
 ## Checkpoint
 
@@ -117,10 +239,12 @@ Bear 不再作为默认机器写入主存。
 
 `bonfire` 是 my-island 的默认主空间。
 
+它服务于 `my-island`，而不是反过来成为主体系统。
+
 它承接：
 
 - memory
-- workstreams
+- missions
 - members
 - refs
 - docs
@@ -132,13 +256,17 @@ Bear 不再作为默认机器写入主存。
 ```text
 bonfire/
 ├── memory/
-├── workstreams/
+├── missions/
 ├── members/
 ├── refs/
 ├── docs/
 ├── runtime/
 └── scripts/
 ```
+
+默认规范路径是 `~/.local/share/bonfire`。
+
+如果 human 需要更顺手的入口，可以后续自行创建 `~/bonfire` symlink，但它不是默认要求。
 
 当前状态
 
@@ -148,7 +276,7 @@ my-island 仍处于定义阶段。
 
 - source of truth
 - 对象边界
-- workstream 规则
+- mission 规则
 - member / worktree 协作模式
 - checkpoint 机制
 - Bear 发布边界
