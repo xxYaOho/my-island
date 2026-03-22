@@ -58,3 +58,7 @@ export function resolveAdapterSourcePath(repoRoot: string) {
 export function resolveTemplateRoot(repoRoot: string) {
   return path.join(repoRoot, 'templates', 'bonfire')
 }
+
+export function resolveBonfireInstallStatePath(bonfireDir: string) {
+  return path.join(bonfireDir, 'runtime', 'my-island-install.json')
+}

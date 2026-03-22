@@ -5,6 +5,7 @@ import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
+import { bonfireMatchesLegacyTemplate, readInstallState } from '../src/lib/install-state.js'
 import {
   resolveAdapterSourcePath,
   resolveBonfireDir,
@@ -142,6 +143,69 @@ test('install creates the OpenCode plugins parent directory when missing', async
 
     assert.equal(result.ok, true)
     assert.equal(fs.existsSync(path.dirname(fixture.pluginPath)), true)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
+test('install writes runtime/my-island-install.json for a fresh bonfire', async () => {
+  const fixture = createFixture()
+
+  try {
+    const result = await installOpencode({
+      cwd: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+
+    assert.equal(result.ok, true)
+
+    const statePath = path.join(fixture.bonfireDir, 'runtime', 'my-island-install.json')
+    assert.equal(fs.existsSync(statePath), true)
+
+    const state = readInstallState(fixture.bonfireDir)
+    assert.equal(state?.schemaVersion, 1)
+    assert.equal(state?.platform, 'opencode')
+    assert.equal(state?.bonfireDir, fixture.bonfireDir)
+    assert.equal(state?.pluginPath, fixture.pluginPath)
+    assert.deepEqual(state?.templateFiles, [
+      'README.md',
+      'docs/.gitkeep',
+      'members/.gitkeep',
+      'memory/.gitkeep',
+      'missions/.gitkeep',
+      'refs/.gitkeep',
+      'runtime/.gitkeep',
+      'scripts/.gitkeep',
+    ])
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
+test('install state helper treats extra legacy files as unsafe for auto-removal', () => {
+  const fixture = createFixture()
+
+  try {
+    fs.cpSync(fixture.templateRoot, fixture.bonfireDir, { recursive: true })
+    assert.equal(
+      bonfireMatchesLegacyTemplate({
+        bonfireDir: fixture.bonfireDir,
+        templateRoot: fixture.templateRoot,
+      }),
+      true,
+    )
+
+    const userNotePath = path.join(fixture.bonfireDir, 'memory', 'user-note.md')
+    fs.writeFileSync(userNotePath, 'user-authored note')
+
+    assert.equal(
+      bonfireMatchesLegacyTemplate({
+        bonfireDir: fixture.bonfireDir,
+        templateRoot: fixture.templateRoot,
+      }),
+      false,
+    )
   } finally {
     fs.rmSync(fixture.rootDir, { recursive: true, force: true })
   }
