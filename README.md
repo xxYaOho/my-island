@@ -2,6 +2,22 @@
 
 my-island 是一个面向个人与多 agent 协作的本地优先系统。
 
+## Quick Start
+
+```bash
+bunx github:teatin/my-island install --platform opencode
+```
+
+安装后检查清单：
+- bonfire 目录：`BONFIRE_DIR` 或 `~/.local/share/bonfire`
+- adapter 插件：`~/.config/opencode/plugins/my-island.ts`
+
+升级：`bunx github:teatin/my-island upgrade --platform opencode`
+
+卸载：`bunx github:teatin/my-island uninstall --platform opencode`
+
+> **注意**：uninstall 是安全优先的，不会删除无法识别为 my-island 管理的 bonfire 内容（如用户自定义文件）。
+
 它独立于具体项目仓库存在，用来承接长期知识、当前工作上下文、执行分身空间，以及阶段性稳定产物。它的目标不是让 agent 维护一套沉重的管理系统，而是让人和 agent 在同一块私人空间里，以更低成本协作。
 
 ## 核心定义
@@ -289,13 +305,15 @@ my-island 仍处于定义阶段。
 - `bunx github:teatin/my-island uninstall --platform opencode`
 - `bunx github:teatin/my-island upgrade --platform opencode`
 
-其中当前已实现的是 `install --platform opencode`。
+其中 `install --platform opencode`、`uninstall --platform opencode`、`upgrade --platform opencode` 均已实现。
 
-它会：
+install 会：
 
 - 使用 `BONFIRE_DIR`，否则默认落到 `~/.local/share/bonfire`
 - 从仓库内 `templates/bonfire/` 实例化 bonfire
 - 部署仓库内的 OpenCode adapter
 - 如果 bonfire 已存在，则拒绝覆盖
 
-`uninstall --platform opencode` 与 `upgrade --platform opencode` 当前仍是下一阶段的稳定占位入口。
+uninstall 是安全优先的，只删除可识别为 my-island 管理的安装。
+
+upgrade 会刷新 adapter 并修复缺失的模板脚手架，不会覆盖用户-authored 的 bonfire 文件。
