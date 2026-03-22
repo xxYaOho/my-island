@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { copyDirectoryRecursive, ensureParentDir, listRelativeFilesRecursive } from '../lib/fs.js'
 import {
+  bonfireMatchesInstallState,
   bonfireMatchesLegacyTemplate,
   pluginLooksLikeManagedMyIslandPlugin,
   readInstallState,
@@ -143,7 +144,8 @@ export async function uninstallOpencode(input: {
   }
 
   if (bonfireExists) {
-    const hasValidInstallState = readInstallState(bonfireDir) !== null
+    const installState = readInstallState(bonfireDir)
+    const hasValidInstallState = installState !== null
     const looksLikeLegacyTemplate = bonfireMatchesLegacyTemplate({
       bonfireDir,
       templateRoot,
@@ -153,6 +155,19 @@ export async function uninstallOpencode(input: {
       return {
         ok: false,
         message: `Refusing to uninstall: bonfire at ${bonfireDir} is not recognized as my-island-managed.`,
+      }
+    }
+
+    if (hasValidInstallState && installState) {
+      const matchesInstallState = bonfireMatchesInstallState({
+        bonfireDir,
+        installState,
+      })
+      if (!matchesInstallState) {
+        return {
+          ok: false,
+          message: `Refusing to uninstall: bonfire at ${bonfireDir} contains extra files or modified content.`,
+        }
       }
     }
   }

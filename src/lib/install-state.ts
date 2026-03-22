@@ -107,3 +107,37 @@ export function pluginLooksLikeManagedMyIslandPlugin(source: string): boolean {
     source.includes('[my-island context]')
   )
 }
+
+const RUNTIME_STATE_FILE = 'runtime/my-island-install.json'
+
+export function bonfireMatchesInstallState(input: {
+  bonfireDir: string
+  installState: InstallState
+}): boolean {
+  const currentFiles = listRelativeFilesRecursive(input.bonfireDir).filter(
+    (f) => f !== RUNTIME_STATE_FILE
+  )
+  const expectedFiles = input.installState.templateFiles
+
+  for (const expectedFile of expectedFiles) {
+    const fullPath = path.join(input.bonfireDir, expectedFile)
+    if (!fs.existsSync(fullPath)) {
+      return false
+    }
+
+    const expectedSourcePath = path.join(input.installState.bonfireDir, expectedFile)
+    if (fs.existsSync(expectedSourcePath)) {
+      const currentContent = fs.readFileSync(fullPath)
+      const expectedContent = fs.readFileSync(expectedSourcePath)
+      if (!currentContent.equals(expectedContent)) {
+        return false
+      }
+    }
+  }
+
+  if (currentFiles.length !== expectedFiles.length) {
+    return false
+  }
+
+  return true
+}
