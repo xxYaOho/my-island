@@ -39,14 +39,83 @@ test('unsupported platform is rejected', () => {
   assert.match(result.stderr, /Unsupported platform/)
 })
 
-test('uninstall and upgrade command names are recognized', () => {
-  const uninstall = runCli(['uninstall', '--platform', 'opencode'])
-  const upgrade = runCli(['upgrade', '--platform', 'opencode'])
+test('uninstall --platform opencode completes full cleanup through the CLI', () => {
+  const fixture = createFixture()
 
-  assert.equal(uninstall.status, 0)
-  assert.equal(upgrade.status, 0)
-  assert.match(uninstall.stdout, /planned next/i)
-  assert.match(upgrade.stdout, /planned next/i)
+  try {
+    const env = {
+      ...process.env,
+      HOME: fixture.homeDir,
+      BONFIRE_DIR: fixture.bonfireDir,
+    }
+
+    const install = runCli(['install', '--platform', 'opencode'], { env })
+    assert.equal(install.status, 0)
+
+    const uninstall = runCli(['uninstall', '--platform', 'opencode'], { env })
+
+    assert.equal(uninstall.status, 0)
+    assert.match(uninstall.stdout, /Uninstalled my-island for opencode\./i)
+    assert.equal(fs.existsSync(fixture.bonfireDir), false)
+    assert.equal(fs.existsSync(fixture.pluginPath), false)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
+test('uninstall exits non-zero when the bonfire contains user-authored files', () => {
+  const fixture = createFixture()
+
+  try {
+    const env = {
+      ...process.env,
+      HOME: fixture.homeDir,
+      BONFIRE_DIR: fixture.bonfireDir,
+    }
+
+    const templateRoot = path.join(repoRoot, 'templates', 'bonfire')
+    const adapterSourcePath = path.join(repoRoot, 'adapters', 'opencode', 'my-island.ts')
+
+    fs.cpSync(templateRoot, fixture.bonfireDir, { recursive: true })
+    fs.writeFileSync(path.join(fixture.bonfireDir, 'memory', 'user-note.md'), 'keep me')
+    fs.mkdirSync(path.dirname(fixture.pluginPath), { recursive: true })
+    fs.copyFileSync(adapterSourcePath, fixture.pluginPath)
+
+    const uninstall = runCli(['uninstall', '--platform', 'opencode'], { env })
+
+    assert.equal(uninstall.status, 1)
+    assert.match(uninstall.stderr, /Refusing to uninstall/i)
+    assert.equal(fs.existsSync(fixture.bonfireDir), true)
+    assert.equal(fs.existsSync(fixture.pluginPath), true)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
+test('upgrade --platform opencode restores a missing plugin through the CLI', () => {
+  const fixture = createFixture()
+
+  try {
+    const env = {
+      ...process.env,
+      HOME: fixture.homeDir,
+      BONFIRE_DIR: fixture.bonfireDir,
+    }
+
+    const install = runCli(['install', '--platform', 'opencode'], { env })
+    assert.equal(install.status, 0)
+
+    fs.rmSync(fixture.pluginPath, { force: true })
+    assert.equal(fs.existsSync(fixture.pluginPath), false)
+
+    const upgrade = runCli(['upgrade', '--platform', 'opencode'], { env })
+
+    assert.equal(upgrade.status, 0)
+    assert.match(upgrade.stdout, /Upgraded my-island for opencode\./i)
+    assert.equal(fs.existsSync(fixture.pluginPath), true)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
 })
 
 test('install --platform opencode completes the full filesystem flow', () => {
