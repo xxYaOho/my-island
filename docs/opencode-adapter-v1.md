@@ -8,11 +8,13 @@
 
 ## Form
 
-第一版采用单文件本地插件：
+第一版采用单文件插件源码，先保存在 `my-island` 仓库中：
 
 ```text
-~/.config/opencode/plugins/my-island.ts
+/Users/teatin/my-island/adapters/opencode/my-island.ts
 ```
+
+部署到 `~/.config/opencode/plugins/` 属于后续部署动作，不属于当前设计本身。
 
 这是一个薄适配器，而不是新的系统本体。
 
