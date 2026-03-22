@@ -162,6 +162,7 @@ export async function uninstallOpencode(input: {
       const matchesInstallState = bonfireMatchesInstallState({
         bonfireDir,
         installState,
+        templateRoot,
       })
       if (!matchesInstallState) {
         return {

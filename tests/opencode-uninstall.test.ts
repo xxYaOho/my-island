@@ -108,3 +108,32 @@ test('uninstall removes a legacy template-only bonfire when it still matches the
     fs.rmSync(fixture.rootDir, { recursive: true, force: true })
   }
 })
+
+test('uninstall refuses to remove when a managed file has been modified', async () => {
+  const fixture = createFixture()
+
+  try {
+    const installResult = await installOpencode({
+      cwd: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+    assert.equal(installResult.ok, true)
+
+    const readmePath = path.join(fixture.bonfireDir, 'README.md')
+    fs.writeFileSync(readmePath, fs.readFileSync(readmePath, 'utf-8') + '\n-- modified by user\n')
+
+    const uninstallResult = await uninstallOpencode({
+      cwd: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+
+    assert.equal(uninstallResult.ok, false)
+    assert.match((uninstallResult as { message?: string }).message ?? '', /modified/i)
+    assert.equal(fs.existsSync(fixture.bonfireDir), true)
+    assert.equal(fs.existsSync(fixture.pluginPath), true)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})

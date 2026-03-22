@@ -113,6 +113,7 @@ const RUNTIME_STATE_FILE = 'runtime/my-island-install.json'
 export function bonfireMatchesInstallState(input: {
   bonfireDir: string
   installState: InstallState
+  templateRoot: string
 }): boolean {
   const currentFiles = listRelativeFilesRecursive(input.bonfireDir).filter(
     (f) => f !== RUNTIME_STATE_FILE
@@ -125,7 +126,7 @@ export function bonfireMatchesInstallState(input: {
       return false
     }
 
-    const expectedSourcePath = path.join(input.installState.bonfireDir, expectedFile)
+    const expectedSourcePath = path.join(input.templateRoot, expectedFile)
     if (fs.existsSync(expectedSourcePath)) {
       const currentContent = fs.readFileSync(fullPath)
       const expectedContent = fs.readFileSync(expectedSourcePath)
