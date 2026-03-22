@@ -36,7 +36,7 @@ test('uninstall removes bonfire, plugin, and install state for a managed install
 
   try {
     const installResult = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -46,7 +46,7 @@ test('uninstall removes bonfire, plugin, and install state for a managed install
     assert.equal(fs.existsSync(statePath), true)
 
     const uninstallResult = await uninstallOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -73,7 +73,7 @@ test('uninstall refuses to remove a legacy bonfire with extra user files', async
     fs.copyFileSync(fixture.adapterSourcePath, fixture.pluginPath)
 
     const uninstallResult = await uninstallOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -96,7 +96,7 @@ test('uninstall removes a legacy template-only bonfire when it still matches the
     fs.copyFileSync(fixture.adapterSourcePath, fixture.pluginPath)
 
     const uninstallResult = await uninstallOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -114,7 +114,7 @@ test('uninstall refuses to remove when a managed file has been modified', async 
 
   try {
     const installResult = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -124,7 +124,7 @@ test('uninstall refuses to remove when a managed file has been modified', async 
     fs.writeFileSync(readmePath, fs.readFileSync(readmePath, 'utf-8') + '\n-- modified by user\n')
 
     const uninstallResult = await uninstallOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })

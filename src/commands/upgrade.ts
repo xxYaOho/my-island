@@ -3,7 +3,7 @@ import { upgradeOpencode } from '../platforms/opencode.js'
 
 export async function runUpgrade(context: CommandContext) {
   const result = await upgradeOpencode({
-    cwd: context.cwd,
+    packageRoot: context.packageRoot,
     env: context.env,
     homeDir: context.homeDir,
   })

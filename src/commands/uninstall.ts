@@ -3,7 +3,7 @@ import { uninstallOpencode } from '../platforms/opencode.js'
 
 export async function runUninstall(context: CommandContext) {
   const result = await uninstallOpencode({
-    cwd: context.cwd,
+    packageRoot: context.packageRoot,
     env: context.env,
     homeDir: context.homeDir,
   })

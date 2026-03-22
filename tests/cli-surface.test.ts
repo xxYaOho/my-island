@@ -7,11 +7,11 @@ import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const cliPath = path.join(repoRoot, 'src', 'cli.ts')
+const cliPath = path.join(repoRoot, 'bin', 'my-island.mjs')
 
-function runCli(args: string[], options: { env?: NodeJS.ProcessEnv } = {}) {
-  return spawnSync(process.execPath, ['--import', 'tsx', cliPath, ...args], {
-    cwd: repoRoot,
+function runCli(args: string[], options: { env?: NodeJS.ProcessEnv; cwd?: string } = {}) {
+  return spawnSync(process.execPath, [cliPath, ...args], {
+    cwd: options.cwd ?? repoRoot,
     env: options.env ?? process.env,
     encoding: 'utf8',
   })
@@ -156,6 +156,29 @@ test('install exits non-zero when bonfire already exists', () => {
     assert.equal(result.status, 1)
     assert.match(result.stderr, /already exists/i)
   } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
+test('install resolves package assets even when executed outside the repository', () => {
+  const fixture = createFixture()
+  const outsideDir = fs.mkdtempSync(path.join(os.tmpdir(), 'my-island-outside-'))
+
+  try {
+    const result = runCli(['install', '--platform', 'opencode'], {
+      cwd: outsideDir,
+      env: {
+        ...process.env,
+        HOME: fixture.homeDir,
+        BONFIRE_DIR: fixture.bonfireDir,
+      },
+    })
+
+    assert.equal(result.status, 0)
+    assert.equal(fs.existsSync(path.join(fixture.bonfireDir, 'docs', '.gitkeep')), true)
+    assert.equal(fs.existsSync(fixture.pluginPath), true)
+  } finally {
+    fs.rmSync(outsideDir, { recursive: true, force: true })
     fs.rmSync(fixture.rootDir, { recursive: true, force: true })
   }
 })

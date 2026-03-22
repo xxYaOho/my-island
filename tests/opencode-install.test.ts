@@ -59,7 +59,7 @@ test('install aborts when bonfire target already exists', async () => {
     fs.mkdirSync(fixture.bonfireDir, { recursive: true })
 
     const result = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -76,7 +76,7 @@ test('install copies templates/bonfire into a fresh BONFIRE_DIR', async () => {
 
   try {
     const result = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -97,7 +97,7 @@ test('install never overwrites an existing bonfire instance', async () => {
     fs.writeFileSync(path.join(fixture.bonfireDir, 'memory', 'keep.txt'), 'do not touch')
 
     const result = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -115,7 +115,7 @@ test('install copies adapters/opencode/my-island.ts into the OpenCode plugin dir
 
   try {
     const result = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -136,7 +136,7 @@ test('install creates the OpenCode plugins parent directory when missing', async
 
   try {
     const result = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -153,7 +153,7 @@ test('install writes runtime/my-island-install.json for a fresh bonfire', async 
 
   try {
     const result = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })

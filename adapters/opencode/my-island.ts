@@ -124,6 +124,7 @@ export const myIslandPlugin = async (pluginContext: { directory?: string; worktr
   const homeDir = os.homedir()
   const bonfireDir = resolveBonfireDir(homeDir)
   const bootstrappedSessions = new Set<string>()
+  const initializedSessions = new Set<string>()
 
   return {
     'shell.env': async (_input: unknown, output: { env: Record<string, string> }) => {
@@ -152,7 +153,8 @@ export const myIslandPlugin = async (pluginContext: { directory?: string; worktr
     ) => {
       const sessionId = input.sessionID
 
-      if (bootstrappedSessions.has(sessionId)) {
+      if (!initializedSessions.has(sessionId)) {
+        initializedSessions.add(sessionId)
         bootstrappedSessions.delete(sessionId)
         const myIslandRoot = resolveMyIslandRoot(pluginContext)
         output.parts.unshift({
@@ -171,3 +173,5 @@ export const myIslandPlugin = async (pluginContext: { directory?: string; worktr
     },
   }
 }
+
+export default myIslandPlugin

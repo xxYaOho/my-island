@@ -3,7 +3,7 @@ import { installOpencode } from '../platforms/opencode.js'
 
 export async function runInstall(context: CommandContext) {
   const result = await installOpencode({
-    cwd: context.cwd,
+    packageRoot: context.packageRoot,
     env: context.env,
     homeDir: context.homeDir,
   })

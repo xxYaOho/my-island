@@ -5,7 +5,7 @@ import path from 'node:path'
 import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-import { myIslandPlugin } from '../adapters/opencode/my-island.js'
+import myIslandPlugin, { myIslandPlugin as namedMyIslandPlugin } from '../adapters/opencode/my-island.js'
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -55,9 +55,10 @@ test('chat.message adds mission hint only for valid mission path', async () => {
 
   await plugin['chat.message']({ sessionID: 's2' }, output)
 
-  assert.equal(output.parts.length, 1)
-  assert.match(output.parts[0].text, /mission context/)
-  assert.match(output.parts[0].text, /Read mission before proceeding/)
+  assert.equal(output.parts.length, 2)
+  assert.match(output.parts[0].text, /my-island context/)
+  assert.match(output.parts[1].text, /mission context/)
+  assert.match(output.parts[1].text, /Read mission before proceeding/)
 })
 
 test('chat.message ignores invalid mission path', async () => {
@@ -70,5 +71,24 @@ test('chat.message ignores invalid mission path', async () => {
 
   await plugin['chat.message']({ sessionID: 's3' }, output)
 
-  assert.deepEqual(output.parts, [])
+  assert.equal(output.parts.length, 1)
+  assert.match(output.parts[0].text, /my-island context/)
+})
+
+test('plugin exports both default and named factories', () => {
+  assert.equal(myIslandPlugin, namedMyIslandPlugin)
+})
+
+test('first chat message bootstraps context even without session.created event', async () => {
+  const plugin = await myIslandPlugin({ directory: repoRoot })
+
+  const output = {
+    message: { content: 'hello' },
+    parts: [] as Array<{ type: string; text: string }>,
+  }
+
+  await plugin['chat.message']({ sessionID: 's4' }, output)
+
+  assert.equal(output.parts.length > 0, true)
+  assert.match(output.parts[0].text, /my-island context/)
 })

@@ -80,12 +80,12 @@ function copyMissingTemplateFiles(input: { templateRoot: string; bonfireDir: str
 }
 
 export async function installOpencode(input: {
-  cwd: string
+  packageRoot: string
   env: NodeJS.ProcessEnv
   homeDir?: string
 }): Promise<InstallResult> {
   const homeDir = input.homeDir ?? os.homedir()
-  const repoRoot = resolveRepoRoot(input.cwd)
+  const repoRoot = resolveRepoRoot(input.packageRoot)
 
   if (!repoRoot) {
     return { ok: false, message: 'Could not resolve my-island repository root.' }
@@ -121,12 +121,12 @@ export async function installOpencode(input: {
 }
 
 export async function uninstallOpencode(input: {
-  cwd: string
+  packageRoot: string
   env: NodeJS.ProcessEnv
   homeDir?: string
 }): Promise<UninstallResult> {
   const homeDir = input.homeDir ?? os.homedir()
-  const repoRoot = resolveRepoRoot(input.cwd)
+  const repoRoot = resolveRepoRoot(input.packageRoot)
 
   if (!repoRoot) {
     return { ok: false, message: 'Could not resolve my-island repository root.' }
@@ -210,12 +210,12 @@ export async function uninstallOpencode(input: {
 }
 
 export async function upgradeOpencode(input: {
-  cwd: string
+  packageRoot: string
   env: NodeJS.ProcessEnv
   homeDir?: string
 }): Promise<UpgradeResult> {
   const homeDir = input.homeDir ?? os.homedir()
-  const repoRoot = resolveRepoRoot(input.cwd)
+  const repoRoot = resolveRepoRoot(input.packageRoot)
 
   if (!repoRoot) {
     return { ok: false, message: 'Could not resolve my-island repository root.' }

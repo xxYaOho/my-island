@@ -1,6 +1,6 @@
 import os from 'node:os'
 import path from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { runInstall } from './commands/install.js'
 import { runUninstall } from './commands/uninstall.js'
@@ -8,11 +8,14 @@ import { runUpgrade } from './commands/upgrade.js'
 
 export type CommandContext = {
   cwd: string
+  packageRoot: string
   env: NodeJS.ProcessEnv
   homeDir: string
   stdout: NodeJS.WriteStream
   stderr: NodeJS.WriteStream
 }
+
+const packageRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 function parsePlatform(args: string[]) {
   const index = args.indexOf('--platform')
@@ -30,6 +33,7 @@ function writeUsage(stderr: NodeJS.WriteStream) {
 export async function run(argv: string[], io?: Partial<CommandContext>) {
   const context: CommandContext = {
     cwd: io?.cwd ?? process.cwd(),
+    packageRoot: io?.packageRoot ?? packageRoot,
     env: io?.env ?? process.env,
     homeDir: io?.homeDir ?? os.homedir(),
     stdout: io?.stdout ?? process.stdout,

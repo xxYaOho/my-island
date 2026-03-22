@@ -41,7 +41,7 @@ test('upgrade backfills runtime/my-island-install.json for a legacy bonfire', as
     fs.copyFileSync(fixture.adapterSourcePath, fixture.pluginPath)
 
     const result = await upgradeOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -62,7 +62,7 @@ test('upgrade recreates the OpenCode plugin when bonfire exists but the plugin i
 
   try {
     const installResult = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -72,7 +72,7 @@ test('upgrade recreates the OpenCode plugin when bonfire exists but the plugin i
     assert.equal(fs.existsSync(fixture.pluginPath), false)
 
     const result = await upgradeOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -89,7 +89,7 @@ test('upgrade restores missing template scaffolding without overwriting user-aut
 
   try {
     const installResult = await installOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -102,7 +102,7 @@ test('upgrade restores missing template scaffolding without overwriting user-aut
     fs.writeFileSync(userFilePath, 'user-owned')
 
     const result = await upgradeOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -120,7 +120,7 @@ test('upgrade fails when no bonfire install exists', async () => {
 
   try {
     const result = await upgradeOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
@@ -143,7 +143,7 @@ test('upgrade refuses to overwrite a plugin that does not look like a managed my
     fs.writeFileSync(fixture.pluginPath, customPlugin)
 
     const result = await upgradeOpencode({
-      cwd: repoRoot,
+      packageRoot: repoRoot,
       env: { BONFIRE_DIR: fixture.bonfireDir },
       homeDir: fixture.homeDir,
     })
