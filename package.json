@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "bin": {
+    "my-island": "./bin/my-island.mjs"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/**/*.test.ts",

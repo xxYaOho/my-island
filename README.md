@@ -280,3 +280,22 @@ my-island 仍处于定义阶段。
 - member / worktree 协作模式
 - checkpoint 机制
 - Bear 发布边界
+
+## CLI Slice
+
+当前公开命令面收敛为：
+
+- `bunx github:teatin/my-island install --platform opencode`
+- `bunx github:teatin/my-island uninstall --platform opencode`
+- `bunx github:teatin/my-island upgrade --platform opencode`
+
+其中当前已实现的是 `install --platform opencode`。
+
+它会：
+
+- 使用 `BONFIRE_DIR`，否则默认落到 `~/.local/share/bonfire`
+- 从仓库内 `templates/bonfire/` 实例化 bonfire
+- 部署仓库内的 OpenCode adapter
+- 如果 bonfire 已存在，则拒绝覆盖
+
+`uninstall --platform opencode` 与 `upgrade --platform opencode` 当前仍是下一阶段的稳定占位入口。
