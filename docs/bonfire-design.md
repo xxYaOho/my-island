@@ -30,8 +30,10 @@
 ### memory
 
 - `memory` 是默认继承经验层
+- `memory/inheritance.md` 是唯一的继承文件
 - 它只收跨 mission 仍然成立、以后默认值得继承的经验
 - 它不是所有已确认内容的总库
+- 提升流程：member 在 `report.md` 提出 -> coordinator 汇总 -> human 确认 -> 追加到 `inheritance.md`
 
 ### decision / summary
 
