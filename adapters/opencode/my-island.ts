@@ -55,10 +55,10 @@ function resolveBonfireDir(homeDir: string) {
 function extractMissionPath(text: string, homeDir: string) {
   if (!text) return null
 
-  const match = text.match(/(?:^|\s)(\S*mission\.md)(?:\s|$)/i)
+  const match = text.match(/(?:^|\s)(\S*mission\.md)/i)
   if (!match) return null
 
-  let missionPath = match[1].trim()
+  let missionPath = match[1].trim().replace(/[.,;:!?]+$/, '')
 
   if (missionPath.startsWith('~/')) {
     missionPath = path.join(homeDir, missionPath.slice(2))
@@ -69,6 +69,73 @@ function extractMissionPath(text: string, homeDir: string) {
   }
 
   return path.resolve(missionPath)
+}
+
+interface RuntimeData {
+  missionId: string
+  status: string
+  worktrees: Record<string, string>
+}
+
+function resolveActiveMissionContext(bonfireDir: string, worktree: string | undefined) {
+  if (!worktree || !pathExists(bonfireDir)) {
+    return null
+  }
+
+  const missionsDir = path.join(bonfireDir, 'missions')
+  if (!pathExists(missionsDir)) {
+    return null
+  }
+
+  let bestMatch: {
+    missionPath: string
+    member: string
+    teamDir: string
+    missionDir: string
+  } | null = null
+
+  const entries = fs.readdirSync(missionsDir, { withFileTypes: true })
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue
+
+    const missionDir = path.join(missionsDir, entry.name)
+    const runtimeJsonPath = path.join(missionDir, 'runtime.json')
+    const missionMdPath = path.join(missionDir, 'mission.md')
+
+    if (!pathExists(runtimeJsonPath) || !pathExists(missionMdPath)) continue
+
+    let runtime: RuntimeData
+    try {
+      runtime = JSON.parse(fs.readFileSync(runtimeJsonPath, 'utf8'))
+    } catch {
+      continue
+    }
+
+    if (runtime.status !== 'active') continue
+
+    const worktreeMatches: Array<{ member: string; memberWorktree: string }> = []
+    for (const [member, memberWorktree] of Object.entries(runtime.worktrees)) {
+      if (memberWorktree === worktree) {
+        worktreeMatches.push({ member, memberWorktree })
+      }
+    }
+
+    if (worktreeMatches.length === 1) {
+      const { member } = worktreeMatches[0]
+      const teamDir = path.join(missionDir, 'team', member)
+      if (pathExists(teamDir)) {
+        bestMatch = {
+          missionPath: missionMdPath,
+          member,
+          teamDir,
+          missionDir,
+        }
+        break
+      }
+    }
+  }
+
+  return bestMatch
 }
 
 function generateBaseContext(input: {
@@ -120,9 +187,36 @@ function generateMissionHint(missionPath: string) {
   ].join('\n')
 }
 
-export const myIslandPlugin = async (pluginContext: { directory?: string; worktree?: string } = {}) => {
+function generateWorktreeMissionContext(input: {
+  bonfireDir: string
+  missionPath: string
+  member: string
+  teamDir: string
+  missionDir: string
+}) {
+  const planPath = path.join(input.teamDir, 'plan.md')
+  const reportPath = path.join(input.teamDir, 'report.md')
+  const notesPath = path.join(input.teamDir, 'notes.md')
+  const inheritancePath = path.join(input.bonfireDir, 'memory', 'inheritance.md')
+  const missionRulesPath = path.join(input.bonfireDir, 'docs', 'mission-rules.md')
+
+  const lines = ['[mission context]']
+  lines.push(`- Active mission: ${input.missionPath}`)
+  lines.push(`- Member: ${input.member}`)
+  lines.push(`- Member plan: ${pathExists(planPath) ? planPath : 'N/A'}`)
+  lines.push(`- Member report: ${pathExists(reportPath) ? reportPath : 'N/A'}`)
+  lines.push(`- Member notes: ${pathExists(notesPath) ? notesPath : 'N/A'}`)
+  lines.push(`- Inherited memory: ${pathExists(inheritancePath) ? inheritancePath : 'N/A'}`)
+  lines.push(`- Mission rules: ${pathExists(missionRulesPath) ? missionRulesPath : 'N/A'}`)
+  lines.push('- Skills remain the execution core.')
+  lines.push('- Mission maintenance after creation is human-driven.')
+
+  return lines.join('\n')
+}
+
+export const myIslandPlugin = async (pluginContext: { directory?: string; worktree?: string; bonfireDir?: string } = {}) => {
   const homeDir = os.homedir()
-  const bonfireDir = resolveBonfireDir(homeDir)
+  const bonfireDir = pluginContext.bonfireDir ?? resolveBonfireDir(homeDir)
   const bootstrappedSessions = new Set<string>()
   const initializedSessions = new Set<string>()
 
@@ -161,6 +255,20 @@ export const myIslandPlugin = async (pluginContext: { directory?: string; worktr
           type: 'text',
           text: generateBaseContext({ bonfireDir, myIslandRoot }),
         })
+
+        const worktreeContext = resolveActiveMissionContext(bonfireDir, pluginContext.worktree)
+        if (worktreeContext) {
+          output.parts.push({
+            type: 'text',
+            text: generateWorktreeMissionContext({
+              bonfireDir,
+              missionPath: worktreeContext.missionPath,
+              member: worktreeContext.member,
+              teamDir: worktreeContext.teamDir,
+              missionDir: worktreeContext.missionDir,
+            }),
+          })
+        }
       }
 
       const missionPath = extractMissionPath(output.message?.content ?? '', homeDir)
