@@ -132,6 +132,86 @@ test('upgrade fails when no bonfire install exists', async () => {
   }
 })
 
+test('upgrade backfills memory/inheritance.md when missing from legacy bonfire', async () => {
+  const fixture = createFixture()
+
+  try {
+    const installResult = await installOpencode({
+      packageRoot: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+    assert.equal(installResult.ok, true)
+
+    fs.rmSync(path.join(fixture.bonfireDir, 'memory', 'inheritance.md'), { force: true })
+
+    const result = await upgradeOpencode({
+      packageRoot: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+
+    assert.equal(result.ok, true)
+    assert.equal(fs.existsSync(path.join(fixture.bonfireDir, 'memory', 'inheritance.md')), true)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
+test('upgrade preserves user-authored content in memory/inheritance.md', async () => {
+  const fixture = createFixture()
+
+  try {
+    const installResult = await installOpencode({
+      packageRoot: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+    assert.equal(installResult.ok, true)
+
+    const inheritancePath = path.join(fixture.bonfireDir, 'memory', 'inheritance.md')
+    const userContent = '# User Memory\n\nUser authored content here'
+    fs.writeFileSync(inheritancePath, userContent)
+
+    const result = await upgradeOpencode({
+      packageRoot: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+
+    assert.equal(result.ok, true)
+    assert.equal(fs.readFileSync(inheritancePath, 'utf8'), userContent)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
+test('upgrade backfills docs/mission-rules.md when missing from legacy bonfire', async () => {
+  const fixture = createFixture()
+
+  try {
+    const installResult = await installOpencode({
+      packageRoot: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+    assert.equal(installResult.ok, true)
+
+    fs.rmSync(path.join(fixture.bonfireDir, 'docs', 'mission-rules.md'), { force: true })
+
+    const result = await upgradeOpencode({
+      packageRoot: repoRoot,
+      env: { BONFIRE_DIR: fixture.bonfireDir },
+      homeDir: fixture.homeDir,
+    })
+
+    assert.equal(result.ok, true)
+    assert.equal(fs.existsSync(path.join(fixture.bonfireDir, 'docs', 'mission-rules.md')), true)
+  } finally {
+    fs.rmSync(fixture.rootDir, { recursive: true, force: true })
+  }
+})
+
 test('upgrade refuses to overwrite a plugin that does not look like a managed my-island adapter', async () => {
   const fixture = createFixture()
 
