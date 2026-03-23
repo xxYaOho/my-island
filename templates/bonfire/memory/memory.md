@@ -4,7 +4,7 @@
 
 ## 说明
 
-`memory/inheritance.md` 是唯一的默认继承 memory 文件。它包含跨 mission 仍然成立、以后默认值得继承的经验。
+`memory/memory.md` 是唯一的默认继承 memory 文件。它包含跨 mission 仍然成立、以后默认值得继承的经验。
 
 ## Append-only Behavior (追加行为)
 

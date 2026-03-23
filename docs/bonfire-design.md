@@ -30,7 +30,7 @@
 ### memory
 
 - `memory` 是默认继承经验层
-- `memory/inheritance.md` 是唯一的继承文件
+- `memory/memory.md` 是唯一的继承文件
 - 它只收跨 mission 仍然成立、以后默认值得继承的经验
 - 它不是所有已确认内容的总库
 - 提升流程：member 在 `report.md` 提出 -> coordinator 汇总 -> human 确认 -> 追加到 `inheritance.md`
@@ -43,7 +43,6 @@
 ### team / member
 
 - `team/<member>/` 承载成员执行材料
-- 顶层 `members/` 只承载成员档案与成员级默认规则
 
 ## Metadata
 
@@ -72,8 +71,6 @@ mission 已存在
 
 ## Allocation Principles
 
-- `Prometheus` 只输出一个总计划
-- `main agent` 负责把总计划拆成成员可执行计划
 - 拆分时优先保持模块完整性
 - 不把强依赖改动拆给多个成员
 - 不为了提高并行度而把任务切得过碎
