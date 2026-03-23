@@ -95,3 +95,12 @@ mission
 
 - `Suggested Promotions` 固定放在执行侧 `report.md`
 - `mission.md` 先不强制保留该 section
+
+## Coordinator Role
+
+`Lianwu` 是 plan 分解和 wave 层集成的协调者：
+
+- 在 wave 边界读取成员报告
+- 更新共享的 mission-level 计划或协调笔记
+- 按文件所有权和依赖关系分解批准的实现计划为成员工作
+- 不将强耦合的改动拆分给多个成员

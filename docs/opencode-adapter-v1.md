@@ -70,6 +70,32 @@
 - 全量扫描 bonfire
 - 重型状态管理
 
+## Mission Bootstrap Boundary
+
+adapter 对 mission 的处理严格遵循薄边界原则：
+
+### Path-Based and Read-Only
+
+- mission 上下文通过 bonfire runtime 数据和工作tree路径自动解析
+- adapter 只注入路径和最小规则摘要，不读取或写入 mission 文件内容
+- 如果无法安全解析 mission，回退到 discussion-first 模式
+
+### Human-Driven Maintenance
+
+- mission 文件在创建后主要由 human 维护
+- adapter 不连续重写 mission 文件
+- human 保持作为 truth source
+
+### Skills as Execution Core
+
+- 执行流程由 skills 完成，不是由 adapter
+- adapter 只注入路径提示，不执行工作流程
+
+### Fixed Flows
+
+- 固定的、重复的流程可以使用 bonfire script 减少格式化漂移
+- 不要通过增加 adapter 或 CLI 功能来实现
+
 ## Recommended Hooks
 
 第一版只建议使用这些 hook：
