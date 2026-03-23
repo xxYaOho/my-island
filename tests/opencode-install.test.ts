@@ -84,6 +84,8 @@ test('install copies templates/bonfire into a fresh BONFIRE_DIR', async () => {
     assert.equal(result.ok, true)
     assert.equal(fs.existsSync(path.join(fixture.bonfireDir, 'memory', '.gitkeep')), true)
     assert.equal(fs.existsSync(path.join(fixture.bonfireDir, 'missions', '.gitkeep')), true)
+    assert.equal(fs.existsSync(path.join(fixture.bonfireDir, 'memory', 'inheritance.md')), true)
+    assert.equal(fs.existsSync(path.join(fixture.bonfireDir, 'docs', 'mission-rules.md')), true)
   } finally {
     fs.rmSync(fixture.rootDir, { recursive: true, force: true })
   }
@@ -171,8 +173,9 @@ test('install writes runtime/my-island-install.json for a fresh bonfire', async 
     assert.deepEqual(state?.templateFiles, [
       'README.md',
       'docs/.gitkeep',
-      'members/.gitkeep',
+      'docs/mission-rules.md',
       'memory/.gitkeep',
+      'memory/inheritance.md',
       'missions/.gitkeep',
       'refs/.gitkeep',
       'runtime/.gitkeep',

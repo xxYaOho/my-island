@@ -1,20 +1,33 @@
-# Inheritance Memory
+# Inherited Memory
 
-This is the default append-only inheritance memory layer for bonfire missions.
+这是 my-island 的默认继承 memory 层。
 
-Entries here represent validated experience that should carry across missions.
+## 说明
+
+`memory/inheritance.md` 是唯一的默认继承 memory 文件。它包含跨 mission 仍然成立、以后默认值得继承的经验。
+
+## Append-only Behavior (追加行为)
+
+此文件采用追加模式 (append-only)。新的 memory 项只通过 human 确认的提升流程追加，从不覆盖或删除现有内容。
 
 ## Entry Template
 
 ```markdown
-- Date: YYYY-MM-DD
-- Source mission: <mission-id>
-- Rule: <concise statement of the rule>
-- Use when: <contexts where this applies>
-- Do not use when: <contexts where this does not apply>
-- Approved by: <human name>
+### Date: [YYYY-MM-DD]
+
+**Source mission:** [mission slug]
+
+**Rule:** [简明的规则描述]
+
+**Use when:** [适用的上下文或条件]
+
+**Do not use when:** [不适用或例外情况]
+
+**Approved by:** [human name]
 ```
+
+---
 
 ## Entries
 
-<!-- Append new entries below this line. Do not modify existing entries. -->
+<!-- 批准的 memory 项从此处开始追加 -->

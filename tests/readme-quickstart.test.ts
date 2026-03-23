@@ -11,9 +11,9 @@ const repoRoot = path.resolve(__dirname, '..')
 test('README includes an OpenCode Quick Start path', () => {
   const readme = fs.readFileSync(path.join(repoRoot, 'README.md'), 'utf8')
 
-  assert.match(readme, /bunx github:teatin\/my-island install --platform opencode/)
-  assert.match(readme, /bunx github:teatin\/my-island upgrade --platform opencode/)
-  assert.match(readme, /bunx github:teatin\/my-island uninstall --platform opencode/)
+  assert.match(readme, /bunx github:xxYaOho\/my-island install --platform opencode/)
+  assert.match(readme, /bunx github:xxYaOho\/my-island upgrade --platform opencode/)
+  assert.match(readme, /bunx github:xxYaOho\/my-island uninstall --platform opencode/)
   assert.match(readme, /BONFIRE_DIR/)
   assert.match(readme, /~\/\.local\/share\/bonfire/)
 })
